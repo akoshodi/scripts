@@ -10,6 +10,7 @@ cur = conn.cursor()
 cur.execute("""
 CREATE TABLE IF NOT EXISTS lineup (
     lineup_id SERIAL PRIMARY KEY,
+    match_id TEXT,
     team_id INTEGER,
     team_name TEXT,
     player_id INTEGER,
@@ -36,6 +37,7 @@ folder_path = 'open-data/data/lineups'
 for filename in os.listdir(folder_path):
     if filename.endswith('.json'):
         file_path = os.path.join(folder_path, filename)
+        match_id = os.path.splitext(filename)[0]  # Get the filename without the .json extension
 
         # Open the JSON file
         with open(file_path, 'r') as f:
@@ -70,10 +72,10 @@ for filename in os.listdir(folder_path):
                     end_reason = position['end_reason'] if 'end_reason' in position else None
 
                     sql = """
-                    INSERT INTO lineup (team_id, team_name, player_id, player_name, player_nickname, jersey_number, country_id, country_name, position_id, position, from_time, to_time, from_period, to_period, start_reason, end_reason)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    INSERT INTO lineup (match_id, team_id, team_name, player_id, player_name, player_nickname, jersey_number, country_id, country_name, position_id, position, from_time, to_time, from_period, to_period, start_reason, end_reason)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     """
-                    values = (team_id, team_name, player_id, player_name, player_nickname, jersey_number, country_id, country_name, position_id, position_name, from_time, to_time, from_period, to_period, start_reason, end_reason)
+                    values = (match_id, team_id, team_name, player_id, player_name, player_nickname, jersey_number, country_id, country_name, position_id, position_name, from_time, to_time, from_period, to_period, start_reason, end_reason)
                     cur.execute(sql, values)
 
 # Commit the changes and close the connection
