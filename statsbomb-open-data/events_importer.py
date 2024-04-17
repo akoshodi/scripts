@@ -68,7 +68,7 @@ for file_name in os.listdir(folder_path):
                     event.get("second"),
                     event.get("type", {}).get("id"),
                     event.get("type", {}).get("name"),
-                    event.get("possession"),
+                    bool(event.get("possession")),  # Convert possession to boolean
                     event.get("possession_team", {}).get("id"),
                     event.get("possession_team", {}).get("name"),
                     event.get("play_pattern", {}).get("id"),
