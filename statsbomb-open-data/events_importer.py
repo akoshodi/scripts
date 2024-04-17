@@ -1,22 +1,9 @@
-# import json
-# import psycopg2
-# import os
-
-# # Connect to the PostgreSQL database
-# conn = psycopg2.connect("dbname=statsbomb user=akoshodi password=R7yth3m3r#@\_ host=/var/run/postgresql")
-# cur = conn.cursor()
-
 import json
+import psycopg2
 import os
-from psycopg2 import connect
 
 # Connect to the PostgreSQL database
-conn = connect(
-    host="/var/run/postgresql",
-    database="statsbomb",
-    user="akoshodi",
-    password="R7yth3m3r#@\_"
-)
+conn = psycopg2.connect("dbname=statsbomb user=akoshodi password=R7yth3m3r#@\_ host=/var/run/postgresql")
 cur = conn.cursor()
 
 # Create a table to store the data
