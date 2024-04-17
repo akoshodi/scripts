@@ -2,6 +2,10 @@ import json
 import psycopg2
 import psycopg2.extras
 import os
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Connect to the PostgreSQL database
 conn = psycopg2.connect("dbname=statsbomb user=akoshodi password=R7yth3m3r#@\_ host=/var/run/postgresql")
@@ -58,41 +62,51 @@ for file_name in os.listdir(folder_path):
             data = json.load(file)
 
             # Prepare the values for insertion
-            values = [
-                (
-                    event.get("id"),
-                    event.get("index"),
-                    event.get("period"),
-                    event.get("timestamp"),
-                    event.get("minute"),
-                    event.get("second"),
-                    event.get("type", {}).get("id"),
-                    event.get("type", {}).get("name"),
-                    bool(event.get("possession")),  # Convert possession to boolean
-                    event.get("possession_team", {}).get("id"),
-                    event.get("possession_team", {}).get("name"),
-                    event.get("play_pattern", {}).get("id"),
-                    event.get("play_pattern", {}).get("name"),
-                    event.get("team", {}).get("id"),
-                    event.get("team", {}).get("name"),
-                    event.get("player", {}).get("id"),
-                    event.get("player", {}).get("name"),
-                    event.get("position", {}).get("id"),
-                    event.get("position", {}).get("name"),
-                    event.get("location"),
-                    event.get("duration"),
-                    event.get("under_pressure"),
-                    str(event.get("tactics", {}).get("formation")) if event.get("tactics") else None,
-                    json.dumps(event.get("tactics", {}).get("lineup")) if event.get("tactics") else None,
-                    [str(related_event) for related_event in event.get("related_events", [])] if event.get("related_events") else [],
-                    json.dumps(event.get("pass")) if event.get("pass") else None,
-                    json.dumps(event.get("carry")) if event.get("carry") else None,
-                    json.dumps(event.get("ball_receipt")) if event.get("ball_receipt") else None,
-                    json.dumps(event.get("duel")) if event.get("duel") else None,
-                    event.get("jersey_number") if event.get("jersey_number") else None,
-                    json.dumps(event.get("tactics")) if event.get("tactics") else None
-                ) for event in data
-            ]
+            values = []
+            for event in data:
+                possession_value = event.get("possession")
+                logging.debug(f"Event ID: {event.get('id')}, Possession Value: {possession_value}")
+
+                if possession_value is None:
+                    possession_boolean = None
+                else:
+                    possession_boolean = bool(possession_value)
+
+                values.append(
+                    (
+                        event.get("id"),
+                        event.get("index"),
+                        event.get("period"),
+                        event.get("timestamp"),
+                        event.get("minute"),
+                        event.get("second"),
+                        event.get("type", {}).get("id"),
+                        event.get("type", {}).get("name"),
+                        possession_boolean,
+                        event.get("possession_team", {}).get("id"),
+                        event.get("possession_team", {}).get("name"),
+                        event.get("play_pattern", {}).get("id"),
+                        event.get("play_pattern", {}).get("name"),
+                        event.get("team", {}).get("id"),
+                        event.get("team", {}).get("name"),
+                        event.get("player", {}).get("id"),
+                        event.get("player", {}).get("name"),
+                        event.get("position", {}).get("id"),
+                        event.get("position", {}).get("name"),
+                        event.get("location"),
+                        event.get("duration"),
+                        event.get("under_pressure"),
+                        str(event.get("tactics", {}).get("formation")) if event.get("tactics") else None,
+                        json.dumps(event.get("tactics", {}).get("lineup")) if event.get("tactics") else None,
+                        [str(related_event) for related_event in event.get("related_events", [])] if event.get("related_events") else [],
+                        json.dumps(event.get("pass")) if event.get("pass") else None,
+                        json.dumps(event.get("carry")) if event.get("carry") else None,
+                        json.dumps(event.get("ball_receipt")) if event.get("ball_receipt") else None,
+                        json.dumps(event.get("duel")) if event.get("duel") else None,
+                        event.get("jersey_number") if event.get("jersey_number") else None,
+                        json.dumps(event.get("tactics")) if event.get("tactics") else None
+                    )
+                )
 
             # Insert the values into the database
             insert_query = """
